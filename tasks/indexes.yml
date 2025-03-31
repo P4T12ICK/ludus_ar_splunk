@@ -1,0 +1,15 @@
+
+- name: Create folder directory for indexes configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/indexes_app/local/
+
+- name: copy indexes.conf to splunk server
+  copy:
+    src: indexes.conf
+    dest: /opt/splunk/etc/apps/indexes_app/local/indexes.conf
+  notify: restart splunk
+
