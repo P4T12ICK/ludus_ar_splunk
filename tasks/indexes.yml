@@ -13,3 +13,8 @@
     dest: /opt/splunk/etc/apps/indexes_app/local/indexes.conf
   notify: restart splunk
 
+- name: copy authorize.conf for default searchable indexes_app
+  copy:
+    src: authorize.conf
+    dest: /opt/splunk/etc/system/local/authorize.conf
+  notify: restart splunk
