@@ -5,6 +5,10 @@
     url: "{{ ludus_ar_splunk_url }}"
     dest: /opt/splunk.tgz
 
+- name: Kill all running splunk processes before install
+  become: yes
+  shell: "kill $(ps aux | grep 'splunk' | grep -v grep | awk '{print $2}')"
+
 - name: install splunk binary
   unarchive: remote_src=yes src=/opt/splunk.tgz dest=/opt/ creates=yes
   become: yes
