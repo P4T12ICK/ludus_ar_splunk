@@ -1,13 +1,15 @@
 ---
-
 - name: download splunk
   get_url:
     url: "{{ ludus_ar_splunk_url }}"
     dest: /opt/splunk.tgz
 
-- name: Kill all running splunk processes before install
-  become: yes
-  shell: "kill $(ps aux | grep 'splunk' | grep -v grep | awk '{print $2}')"
+- name: disable and stoping service if exists
+  service:
+    name: splunkd
+    state: stopped
+  register: result_systemd_stop
+  failed_when: "result_systemd_stop is failed and 'Could not find the requested service' not in result_systemd_stop.msg"
 
 - name: install splunk binary
   unarchive: remote_src=yes src=/opt/splunk.tgz dest=/opt/ creates=yes
