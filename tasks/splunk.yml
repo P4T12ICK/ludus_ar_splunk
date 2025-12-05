@@ -28,18 +28,10 @@
     path: /opt/splunk/bin/splunk
   register: splunk_binary
 
-- name: check if splunk is already running
-  command: /opt/splunk/bin/splunk status
-  register: splunk_status
-  changed_when: false
-  failed_when: false
-  become: yes
-  when: splunk_binary.stat.exists
-
 - name: accept license and start splunk
   shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{ ludus_ar_splunk_password }}
   become: yes
-  when: splunk_binary.stat.exists and (splunk_status.rc | default(1) != 0 or 'not running' in splunk_status.stdout | default(''))
+  when: splunk_binary.stat.exists
 
 - name: check if boot-start is enabled
   command: /opt/splunk/bin/splunk status boot-start
