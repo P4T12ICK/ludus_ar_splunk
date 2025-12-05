@@ -1,9 +1,40 @@
 ---
 
+- name: check if {{ item }} file exists locally
+  stat:
+    path: /tmp/{{ item }}
+  register: app_file
+
 - name: download {{ item }} from S3 bucket
   get_url:
     url: '{{ ludus_ar_splunk_s3_bucket_url }}/{{ item }}'
     dest: /tmp/{{ item }}
+    force: no
+  when: not app_file.stat.exists
+  register: app_download
+
+- name: get list of installed apps
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: GET
+    user: "admin"
+    password: "{{ ludus_ar_splunk_password }}"
+    validate_certs: false
+    status_code: [ 200 ]
+    timeout: 30
+  register: installed_apps_result
+  changed_when: false
+  failed_when: false
+
+- name: extract app base name from {{ item }}
+  set_fact:
+    app_base_name: "{{ item | regex_replace('\.(tgz|tar\.gz)$', '') | regex_replace('^splunk-add-on-for-', '') | regex_replace('^splunk-', '') | regex_replace('^DA-ESS-', '') | lower }}"
+
+- name: check if {{ item }} is already installed by checking app names
+  set_fact:
+    app_already_installed: "{{ app_base_name in (installed_apps_result.json.entry | default([]) | map(attribute='name') | map('lower') | list | join('|')) }}"
+  when: installed_apps_result.status == 200
+  failed_when: false
 
 - name: Install {{ item }} via REST
   uri:
@@ -17,4 +48,5 @@
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
     timeout: 300
+  when: app_already_installed | default(false) == false
   notify: restart splunk

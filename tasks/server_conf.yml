@@ -12,7 +12,3 @@
     src: server.conf
     dest: /opt/splunk/etc/apps/server_app/local/server.conf
   notify: restart splunk
-
-- name: restart splunk
-  service: name=splunk state=restarted
-  become: yes

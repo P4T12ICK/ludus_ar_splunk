@@ -3,6 +3,8 @@
   get_url:
     url: "{{ ludus_ar_splunk_url }}"
     dest: /opt/splunk.tgz
+    force: no
+  register: splunk_download
 
 - name: disable and stoping service if exists
   service:
@@ -10,19 +12,44 @@
     state: stopped
   register: result_systemd_stop
   failed_when: "result_systemd_stop is failed and 'Could not find the requested service' not in result_systemd_stop.msg"
+  when: splunk_download.changed | default(false)
 
 - name: install splunk binary
-  unarchive: remote_src=yes src=/opt/splunk.tgz dest=/opt/ creates=yes
+  unarchive:
+    remote_src: yes
+    src: /opt/splunk.tgz
+    dest: /opt/
+    creates: /opt/splunk/bin/splunk
   become: yes
+  when: splunk_download.changed | default(false)
+
+- name: check if splunk binary exists
+  stat:
+    path: /opt/splunk/bin/splunk
+  register: splunk_binary
+
+- name: check if splunk is already running
+  command: /opt/splunk/bin/splunk status
+  register: splunk_status
+  changed_when: false
+  failed_when: false
+  become: yes
+  when: splunk_binary.stat.exists
 
 - name: accept license and start splunk
   shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{ ludus_ar_splunk_password }}
   become: yes
+  when: splunk_binary.stat.exists and (splunk_status.rc | default(1) != 0 or 'not running' in splunk_status.stdout | default(''))
+
+- name: check if boot-start is enabled
+  command: /opt/splunk/bin/splunk status boot-start
+  register: boot_start_status
+  changed_when: false
+  failed_when: false
+  become: yes
+  when: splunk_binary.stat.exists
 
 - name: enable boot-start
   shell: /opt/splunk/bin/splunk enable boot-start
-
-- name: restart splunk
-  service:
-    name: splunkd
-    state: restarted
+  become: yes
+  when: splunk_binary.stat.exists and (boot_start_status.rc | default(1) != 0)
