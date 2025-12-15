@@ -1,0 +1,22 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Verify Splunk binary exists
+      ansible.builtin.stat:
+        path: /opt/splunk/bin/splunk
+      register: result
+      failed_when: not result.stat.exists
+
+    - name: Verify Splunk is running
+      ansible.builtin.command: /opt/splunk/bin/splunk status
+      changed_when: false
+      register: result
+      failed_when: result.rc != 0
+
+    - name: Verify Splunk directory exists
+      ansible.builtin.stat:
+        path: /opt/splunk
+      register: result
+      failed_when: not result.stat.isdir
