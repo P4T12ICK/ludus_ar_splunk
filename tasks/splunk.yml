@@ -84,15 +84,15 @@
   become: yes
   when: splunk_binary.stat.exists
 
-- name: check if boot-start is enabled
-  command: /opt/splunk/bin/splunk status boot-start
-  register: boot_start_status
-  changed_when: false
-  failed_when: false
-  become: yes
+- name: check if boot-start init script exists
+  stat:
+    path: /etc/init.d/splunk
+  register: boot_start_init_script
   when: splunk_binary.stat.exists
 
 - name: enable boot-start
   shell: /opt/splunk/bin/splunk enable boot-start
   become: yes
-  when: splunk_binary.stat.exists and (boot_start_status.rc | default(1) != 0)
+  when:
+    - splunk_binary.stat.exists
+    - not (boot_start_init_script.stat.exists | default(false))
