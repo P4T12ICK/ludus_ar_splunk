@@ -60,6 +60,25 @@
 - name: accept license and start splunk
   shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{ ludus_ar_splunk_password }}
   become: yes
+  register: splunk_start_result
+  failed_when: false
+  changed_when: false
+  when: splunk_binary.stat.exists
+
+- name: wait for splunk to initialize
+  wait_for:
+    port: 8089
+    host: localhost
+    delay: 5
+    timeout: 60
+  when: splunk_binary.stat.exists
+
+- name: verify splunk is running
+  command: /opt/splunk/bin/splunk status
+  register: splunk_status_result
+  changed_when: false
+  failed_when: splunk_status_result.rc != 0
+  become: yes
   when: splunk_binary.stat.exists
 
 - name: check if boot-start is enabled
