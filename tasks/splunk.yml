@@ -1,8 +1,18 @@
 ---
+- name: set splunk package path based on file type
+  set_fact:
+    splunk_package_path: >-
+      {%- if ludus_ar_splunk_url.endswith('.deb') -%}
+        /opt/splunk.deb
+      {%- else -%}
+        /opt/splunk.tgz
+      {%- endif -%}
+    splunk_is_deb: "{{ ludus_ar_splunk_url.endswith('.deb') }}"
+
 - name: download splunk
   get_url:
     url: "{{ ludus_ar_splunk_url }}"
-    dest: /opt/splunk.tgz
+    dest: "{{ splunk_package_path }}"
     force: no
   register: splunk_download
 
@@ -14,14 +24,33 @@
   failed_when: "result_systemd_stop is failed and 'Could not find the requested service' not in result_systemd_stop.msg"
   when: splunk_download.changed | default(false)
 
-- name: install splunk binary
+- name: update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+  become: yes
+  when:
+    - splunk_download.changed | default(false)
+    - splunk_is_deb | default(false)
+
+- name: install splunk binary from deb package
+  ansible.builtin.apt:
+    deb: "{{ splunk_package_path }}"
+    state: present
+  become: yes
+  when:
+    - splunk_download.changed | default(false)
+    - splunk_is_deb | default(false)
+
+- name: install splunk binary from tarball
   unarchive:
     remote_src: yes
-    src: /opt/splunk.tgz
+    src: "{{ splunk_package_path }}"
     dest: /opt/
     creates: /opt/splunk/bin/splunk
   become: yes
-  when: splunk_download.changed | default(false)
+  when:
+    - splunk_download.changed | default(false)
+    - not (splunk_is_deb | default(false))
 
 - name: check if splunk binary exists
   stat:
