@@ -3,6 +3,7 @@ dependencies: []
 
 galaxy_info:
   role_name: ludus_ar_splunk
+  namespace: P4T12ICK
   author: P4T12ICK
   description: An Ansible Role that installs Splunk Attack Range.
   company: Splunk
