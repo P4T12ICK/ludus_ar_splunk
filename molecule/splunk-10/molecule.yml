@@ -1,5 +1,5 @@
 ---
-role_name_check: false
+role_name_check: 1
 dependency:
   name: galaxy
 driver:
@@ -16,8 +16,6 @@ platforms:
     pre_build_image: true
 provisioner:
   name: ansible
-  env:
-    MOLECULE_ROLE_NAME_CHECK: '0'
   playbooks:
     converge: converge.yml
     verify: verify.yml
