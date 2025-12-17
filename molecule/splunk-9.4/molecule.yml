@@ -20,7 +20,5 @@ provisioner:
     converge: converge.yml
     verify: verify.yml
   log: true
-  options:
-    vvv: true
 verifier:
   name: ansible
