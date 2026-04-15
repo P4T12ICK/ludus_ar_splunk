@@ -4,5 +4,5 @@
   roles:
     - role: ../../..
       vars:
-        ludus_ar_splunk_url: https://download.splunk.com/products/splunk/releases/10.0.2/linux/splunk-10.0.2-e2d18b4767e9-linux-amd64.tgz
+        ludus_ar_splunk_url: https://download.splunk.com/products/splunk/releases/10.2.1/linux/splunk-10.2.1-c892b66d163d-linux-amd64.tgz
         ludus_ar_splunk_password: changeme123!
