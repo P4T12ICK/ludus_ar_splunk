@@ -67,7 +67,7 @@
   when: splunk_binary.stat.exists
 
 - name: accept license and start splunk
-  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{ ludus_ar_splunk_password }}
+  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --run-as-root --seed-passwd {{ ludus_ar_splunk_password }}
   become: yes
   register: splunk_start_result
   failed_when: false
