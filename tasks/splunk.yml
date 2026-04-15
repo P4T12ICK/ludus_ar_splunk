@@ -22,7 +22,7 @@
 
 - name: set splunk run-as-root behavior based on major version
   set_fact:
-    splunk_use_run_as_root: "{{ splunk_major_version >= 10 }}"
+    splunk_use_run_as_root: "{{ (splunk_major_version | int) >= 10 }}"
 
 - name: download splunk
   get_url:
