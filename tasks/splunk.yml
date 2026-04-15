@@ -8,9 +8,17 @@
         /opt/splunk.tgz
       {%- endif -%}
     splunk_is_deb: "{{ ludus_ar_splunk_url.endswith('.deb') }}"
+
+- name: derive splunk major version from package filename
+  set_fact:
+    splunk_package_filename: "{{ ludus_ar_splunk_url | basename }}"
+
+- name: extract splunk major version
+  set_fact:
     splunk_major_version: >-
-      {{ ((ludus_ar_splunk_url | regex_findall('splunk-([0-9]+)\\.[0-9]+\\.[0-9]+') | first)
-         | default('0', true) | int) }}
+      {{ (((splunk_package_filename.split('-'))[1].split('.'))[0] | int)
+         if splunk_package_filename.startswith('splunk-')
+         else 0 }}
 
 - name: set splunk run-as-root behavior based on major version
   set_fact:
