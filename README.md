@@ -7,16 +7,16 @@ This will install and configure Splunk similar to the Splunk server in [Attack R
 
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 ```
-ludus_splunk_url: https://download.splunk.com/products/splunk/releases/9.3.0/linux/splunk-9.3.0-51ccf43db5bd-Linux-x86_64.tgz
-ludus_splunk_password: changeme123!
-ludus_splunk_apps:
+ludus_ar_splunk_url: https://download.splunk.com/products/splunk/releases/9.3.0/linux/splunk-9.3.0-51ccf43db5bd-Linux-x86_64.tgz
+ludus_ar_splunk_password: changeme123!
+ludus_ar_splunk_apps:
     - splunk-add-on-for-microsoft-windows_901.tgz
     - splunk-add-on-for-sysmon-for-linux_100.tgz
     - splunk-add-on-for-sysmon_402.tgz
     - splunk-add-on-for-unix-and-linux_1000.tgz
     - splunk-common-information-model-(cim)_602.tgz
     - DA-ESS-ContentUpdate-latest.tar.gz
-ludus_splunk_s3_bucket_url: https://attack-range-appbinaries.s3-us-west-2.amazonaws.com
+ludus_ar_splunk_s3_bucket_url: https://attack-range-appbinaries.s3-us-west-2.amazonaws.com
 ```
 
 ## Dependencies

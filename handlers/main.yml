@@ -1,3 +1,5 @@
 - name: restart splunk
-  command: /opt/splunk/bin/splunk restart --run-as-root
+  command: >-
+    /opt/splunk/bin/splunk restart
+    {% if splunk_use_run_as_root | default(false) %}--run-as-root{% endif %}
   become: yes

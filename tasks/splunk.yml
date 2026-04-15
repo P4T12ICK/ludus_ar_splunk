@@ -8,6 +8,14 @@
         /opt/splunk.tgz
       {%- endif -%}
     splunk_is_deb: "{{ ludus_ar_splunk_url.endswith('.deb') }}"
+    splunk_major_version: >-
+      {{ (ludus_ar_splunk_url | regex_replace('^.*splunk-([0-9]+)\\..*$', '\\1') | int)
+         if (ludus_ar_splunk_url is regex('^.*splunk-[0-9]+\\..*$'))
+         else 0 }}
+
+- name: set splunk run-as-root behavior based on major version
+  set_fact:
+    splunk_use_run_as_root: "{{ splunk_major_version >= 10 }}"
 
 - name: download splunk
   get_url:
@@ -67,7 +75,10 @@
   when: splunk_binary.stat.exists
 
 - name: accept license and start splunk
-  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --run-as-root --seed-passwd {{ ludus_ar_splunk_password }}
+  shell: >-
+    /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt
+    {% if splunk_use_run_as_root %}--run-as-root{% endif %}
+    --seed-passwd {{ ludus_ar_splunk_password }}
   become: yes
   register: splunk_start_result
   failed_when: false
