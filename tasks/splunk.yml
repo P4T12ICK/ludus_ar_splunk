@@ -9,9 +9,8 @@
       {%- endif -%}
     splunk_is_deb: "{{ ludus_ar_splunk_url.endswith('.deb') }}"
     splunk_major_version: >-
-      {{ (ludus_ar_splunk_url | regex_replace('^.*splunk-([0-9]+)\\..*$', '\\1') | int)
-         if (ludus_ar_splunk_url is regex('^.*splunk-[0-9]+\\..*$'))
-         else 0 }}
+      {{ ((ludus_ar_splunk_url | regex_findall('splunk-([0-9]+)\\.[0-9]+\\.[0-9]+') | first)
+         | default('0', true) | int) }}
 
 - name: set splunk run-as-root behavior based on major version
   set_fact:
